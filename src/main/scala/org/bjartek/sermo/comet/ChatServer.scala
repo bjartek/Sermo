@@ -32,10 +32,15 @@ import _root_.org.bjartek.sermo.model._
  */
 
 object ChatServer extends Actor with ListenerManager {
-  private var chats: List[ChatLine] = List(ChatLine("System", Text("Welcome"), now))
+  private var chats: List[ChatLine] = Message.findAll().reverse.map( m => ChatLine(m.user.obj.open_!, toHtml(m.content), m.createdAt))
 
   override def lowPriority = {
     case ChatServerMsg(user, msg) if msg.length > 0 =>
+      val message = Message.create.user(user).content(msg).createdAt(now)
+        message.validate match {
+          case Nil => message.save
+            case x => error(x.toString)
+       }
       chats ::= ChatLine(user, toHtml(msg), timeNow)
       chats = chats.take(50)
       updateListeners()
