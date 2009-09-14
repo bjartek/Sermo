@@ -22,7 +22,7 @@ class Boot {
 
     // where to search snippet
     LiftRules.addToPackages("org.bjartek.sermo")
-    Schemifier.schemify(true, Log.infoF _, User)
+    Schemifier.schemify(true, Log.infoF _, User, Message)
 
     // Build SiteMap
     val IfLoggedIn = If(() => User.currentUser.isDefined, "You must be logged in")
