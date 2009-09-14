@@ -21,7 +21,6 @@ import _root_.net.liftweb._
 import http._
 import util._
 import Helpers._
-import _root_.scala.xml.{NodeSeq, Text}
 import _root_.java.util.Date
 import _root_.org.bjartek.sermo.model._
 
