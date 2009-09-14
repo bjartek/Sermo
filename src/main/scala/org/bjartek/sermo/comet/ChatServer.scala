@@ -22,6 +22,7 @@ import http._
 import util._
 import Helpers._
 import _root_.java.util.Date
+import _root_.net.liftweb.mapper._
 import _root_.org.bjartek.sermo.model._
 
 /**
@@ -29,7 +30,7 @@ import _root_.org.bjartek.sermo.model._
  */
 
 object ChatServer extends Actor with ListenerManager {
-  private var chats: List[Message] = Message.findAll().reverse
+  private var chats: List[Message] = Message.findAll(PreCache(Message.user)).reverse
 
   override def lowPriority = {
     case ChatServerMsg(user, msg) if msg.length > 0 =>
