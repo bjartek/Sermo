@@ -1,0 +1,7 @@
+Sermo is latin meaning
+# discussion, speech
+# talk, common talk, conversation, rumor
+
+This app is an small example on how to do a persistent comet based chat in the Liftweb framework. 
+
+Most of the code is from the demo.liftweb.net/chat example. It is modified slightly to persist messages and use the registered name as the username in the chat
