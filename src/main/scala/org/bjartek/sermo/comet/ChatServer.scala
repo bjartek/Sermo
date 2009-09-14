@@ -22,8 +22,6 @@ import http._
 import util._
 import Helpers._
 import _root_.scala.xml.{NodeSeq, Text}
-import _root_.net.liftweb.textile._
-import textile.TextileParser
 import _root_.java.util.Date
 import _root_.org.bjartek.sermo.model._
 
@@ -32,37 +30,26 @@ import _root_.org.bjartek.sermo.model._
  */
 
 object ChatServer extends Actor with ListenerManager {
-  private var chats: List[ChatLine] = Message.findAll().reverse.map( m => ChatLine(m.user.obj.open_!, toHtml(m.content), m.createdAt))
+  private var chats: List[Message] = Message.findAll().reverse
 
   override def lowPriority = {
     case ChatServerMsg(user, msg) if msg.length > 0 =>
       val message = Message.create.user(user).content(msg).createdAt(now)
         message.validate match {
-          case Nil => message.save
-            case x => error(x.toString)
+          case Nil => 
+            message.save
+            chats ::= message
+            chats = chats.take(50)
+            updateListeners()
+           case x => error(x.toString)
        }
-      chats ::= ChatLine(user, toHtml(msg), timeNow)
-      chats = chats.take(50)
-      updateListeners()
-
     case _ =>
   }
 
   def createUpdate = ChatServerUpdate(chats.take(15))
-
-  /**
-   * Convert an incoming string into XHTML using Textile Markup
-   *
-   * @param msg the incoming string
-   *
-   * @return textile markup for the incoming string
-   */
-  def toHtml(msg: String): NodeSeq = TextileParser.paraFixer(TextileParser.toHtml(msg, Empty))
-
   this.start
 }
 
-case class ChatLine(user: User, msg: NodeSeq, when: Date)
 case class ChatServerMsg(user: User, msg: String)
-case class ChatServerUpdate(msgs: List[ChatLine])
+case class ChatServerUpdate(msgs: List[Message])
 

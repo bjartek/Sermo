@@ -27,13 +27,15 @@ import SHtml._
 import js._
 import JsCmds._
 import JE._
+import _root_.net.liftweb.textile._
+import textile.TextileParser
 import net.liftweb.http.js.jquery.JqJsCmds._
 import _root_.org.bjartek.sermo.model._
 
 class Chat extends CometActor with CometListener {
   private val user = User.currentUser.open_!
   
-  private var chats: List[ChatLine] = Nil
+  private var chats: List[Message] = Nil
   private lazy val infoId = uniqueId + "_info"
   private lazy val infoIn = uniqueId + "_in"
   private lazy val inputArea = findKids(defaultXml, "chat", "input")
@@ -62,10 +64,13 @@ class Chat extends CometActor with CometListener {
   private def sendMessage(msg: String) = ChatServer ! ChatServerMsg(user, msg.trim)
 
   // display a line
-  private def line(c: ChatLine) = bind("list", singleLine,
-                                       "when" -> hourFormat(c.when),
-                                       "who" -> c.user.username,
-                                       "msg" -> c.msg)
+  private def line(m: Message) = bind("list", singleLine,
+                                       "when" -> hourFormat(m.createdAt),
+                                       "who" -> m.user.obj.open_!.username,
+                                       "msg" -> toHtml(m.content))
+
+  private def toHtml(msg: String): NodeSeq = TextileParser.paraFixer(TextileParser.toHtml(msg, Empty))
+
 
   // display a list of chats
   private def displayList(in: NodeSeq): NodeSeq = chats.reverse.flatMap(line)
