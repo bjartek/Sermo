@@ -64,7 +64,7 @@ class Chat extends CometActor with CometListener {
   // display a line
   private def line(c: ChatLine) = bind("list", singleLine,
                                        "when" -> hourFormat(c.when),
-                                       "who" -> c.user,
+                                       "who" -> c.user.username,
                                        "msg" -> c.msg)
 
   // display a list of chats
