@@ -9,7 +9,7 @@ import _root_.org.bjartek.sermo.model._
  */
 object Message extends Message with LongKeyedMetaMapper[Message]
 
-class Message  extends LongKeyedMapper[Author] with IdPK {
+class Message  extends LongKeyedMapper[Message] with IdPK {
   def getSingleton = Message // what's the "meta" server
   
   object user extends MappedLongForeignKey(this, User)
@@ -17,7 +17,7 @@ class Message  extends LongKeyedMapper[Author] with IdPK {
   object createdAt extends MappedDateTime(this)
 
   // define an additional field for a personal essay
-  object text extends MappedTextarea(this, 2048) {
+  object content extends MappedTextarea(this, 2048) {
     override def textareaRows  = 10
     override def textareaCols = 50
     override def displayName = "Message"
