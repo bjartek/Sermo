@@ -27,8 +27,6 @@ import SHtml._
 import js._
 import JsCmds._
 import JE._
-import _root_.net.liftweb.textile._
-import textile.TextileParser
 import net.liftweb.http.js.jquery.JqJsCmds._
 import _root_.org.bjartek.sermo.model._
 
@@ -46,39 +44,31 @@ class Chat extends CometActor with CometListener {
 
   override def render =
     bind("chat", bodyArea,
-       "name" -> user.username,
-       AttrBindParam("id", Text(infoId), "id"),
-       "list" -> displayList _)
+      "name" -> user.username,
+      AttrBindParam("id", Text(infoId), "id"),
+      "list" -> displayList _)
 
   private def displayList(in: NodeSeq): NodeSeq = chats.reverse.flatMap(line)
 
-  private def line(m: Message) = bind("list", singleLine,
-                                       "when" -> hourFormat(m.createdAt),
-                                       "who" -> m.user.obj.open_!.username,
-                                       "msg" -> toHtml(m.content))
+  private def line(m: Message) = 
+    bind("list", singleLine,
+      "when" -> hourFormat(m.createdAt),
+      "who" -> m.user.obj.open_!.username,
+      "msg" -> m.contentAsHtml)
 
-  private def toHtml(msg: String): NodeSeq = TextileParser.paraFixer(TextileParser.toHtml(msg, Empty))
 
-  // handle an update to the chat lists
-  // by diffing the lists and then sending a partial update
-  // to the browser
+  override lazy val fixedRender: Box[NodeSeq] =
+    ajaxForm(After(100, SetValueAndFocus(infoIn, "")),
+           bind("chat", inputArea,
+                "input" -> text("", sendMessage _, "id" -> infoIn)))
+
+  private def sendMessage(msg: String) = ChatServer ! ChatServerMsg(user, msg.trim)
+
   override def lowPriority = {
     case ChatServerUpdate(value) =>
       val update = (value -- chats).reverse.map(b => AppendHtml(infoId, line(b)))
       partialUpdate(update)
       chats = value
   }
-
-  // render the input area by binding the
-  // appropriate dynamically generated code to the
-  // view supplied by the template
-  override lazy val fixedRender: Box[NodeSeq] =
-    ajaxForm(After(100, SetValueAndFocus(infoIn, "")),
-           bind("chat", inputArea,
-                "input" -> text("", sendMessage _, "id" -> infoIn)))
-
-  // send a message to the chat server
-  private def sendMessage(msg: String) = ChatServer ! ChatServerMsg(user, msg.trim)
-
 
 }
