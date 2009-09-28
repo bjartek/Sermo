@@ -1,4 +1,3 @@
-
 <project 
   xmlns="http://maven.apache.org/POM/4.0.0" 
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
@@ -32,7 +31,7 @@
 		<pluginRepository>
 			<id>zt-repo</id>
 			<name>Zero turnaround repo</name>
-			<url>dav:http://repos.zeroturnaround.com/maven2</url>
+			<url>http://repos.zeroturnaround.com/maven2</url>
 		</pluginRepository>
     <pluginRepository>
       <id>scala-tools.org</id>
